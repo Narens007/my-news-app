@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 
 const NewsItems =({ title, description , imgUrl, newsUrl, author, date})=>{
   const defaultUrl = "https://i.pinimg.com/originals/d1/a6/2a/d1a62a6d8969170025f279115470e34b.jpg"
