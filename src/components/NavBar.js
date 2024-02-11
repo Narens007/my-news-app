@@ -2,13 +2,10 @@
 import React, { Component } from 'react'
 import { Link } from "react-router-dom";
 
-export default class NavBar extends Component {
-  
-
-  render() {
+   const NavBar = ()=>{
     return (
       <div>
-        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav className="navbar fixed-top navbar-expand-lg navbar-dark bg-dark ">
             <div className="container-fluid">
                 <Link className="navbar-brand" to="/">NewsApp</Link>
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,7 +26,7 @@ export default class NavBar extends Component {
                     </Link>
                     <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
 
-                        <li><Link className="dropdown-item" to="/general">general (default)</Link></li>
+                        <li><Link className="dropdown-item" data-bs-target="#navbarSupportedContent" to="/general">general (default)</Link></li>
                         <li><hr className="dropdown-divider"/></li>
                         <li><Link className="dropdown-item" to="/business">business</Link></li>
                         <li><Link className="dropdown-item" to="/entertainment">entertainment</Link></li>
@@ -43,15 +40,19 @@ export default class NavBar extends Component {
                     </li>
                     
                 </ul>
-                <form className="d-flex">
+                {/* you can add this search if you wont */}
+
+                {/* <form className="d-flex">
                     <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
                     <button className="btn btn-outline-success" type="submit">Search</button>
-                </form>
+                </form> */}
                 </div>
             </div>
         </nav>
 
       </div>
     )
+  
   }
-}
+  export default NavBar;
+   

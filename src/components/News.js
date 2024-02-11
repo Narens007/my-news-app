@@ -1,121 +1,97 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import NewsItems from "./Newsitems";
 import Spinner from "./Spinner";
-import PropTypes from 'prop-types'
+import PropTypes from "prop-types";
 
-export class News extends Component {
+const News = ({ country = "in", pageSize = 6, category = "general" }) => {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
 
+  // Function to capitalize first character of a word
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
 
-  //loading center 
-  
-
-  static defaultProps = {
-    country : 'in',
-    pageSize: 6,
-    category: 'general',
-
-
-  }
-
-  
-
-  static propTypes = {
-    country: PropTypes.string,
-    pageSize: PropTypes.number,
-    category: PropTypes.string,
-
-
-  }
-
-  constructor() {
-    super();
-    this.state = {
-      articles: [],
-      loading: false,
-      page: 1
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const url = `https://newsapi.org/v2/top-headlines?country=${country}&category=${category}&apiKey=${process.env.REACT_APP_NEWS_API_KEY}&pageSize=${pageSize}&page=${page}`;
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log("data for new-->", data);
+        setArticles(data.articles);
+        setTotalResults(data.totalResults);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+        setLoading(false);
+      }
     };
 
+    fetchData();
+  }, [country, pageSize, category, page]);
 
-  }
+  const handlePrevButton = () => {
+    window.scrollTo(0, 0);
+    setPage(page - 1);
+  };
 
-  async componentDidMount() {
-    let url= `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=722229a3f08c4949917f1298ae434ae1&pageSize=${this.props.pageSize}`
-    this.setState({loading: true})
-    let data = await fetch(url)
-    let parsedData = await data.json()
-    this.setState({
-      articles: parsedData.articles,
-      totalResults: parsedData.totalResults,
-      loading: false,
-      
-    })
-    
-    
-    
-  }
+  const handleNextButton = () => {
+    window.scrollTo(0, 0);
+    setPage(page + 1);
+  };
 
-  handlePrevButton= async () => {
-    let url= `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=722229a3f08c4949917f1298ae434ae1&page=${this.state.page - 1}&pageSize=${this.props.pageSize}`
-    this.setState({loading: true})
-    let data = await fetch(url)
-    let parsedData = await data.json()
-    
-    this.setState({
-      page: this.state.page - 1,
-      articles: parsedData.articles,
-      loading: false
-    })   
-  }
+  return (
+    <div className="container">
+      <h1 className="text-center " style={{ margin: "35px" }}>
+        Category - {capitalizeFirstLetter(category)}
+      </h1>
+      <div className="rounded mx-auto d-block">{loading && <Spinner />}</div>
 
-  handleNextButton = async () => {
-    
-      let url= `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=722229a3f08c4949917f1298ae434ae1&page=${this.state.page + 1}&pageSize=${this.props.pageSize}`
-      this.setState({ loading: true})
-      let data = await fetch(url)
-      let parsedData = await data.json()
-  
-      this.setState({
-          page: this.state.page + 1,
-        articles: parsedData.articles,
-        loading: false
-      })
-    
-
-    
-  }  
-
-    
-  render() {
-    
-    return (
-      <div className="container">
-        <h1 className="text-center" style={{margin: "35px"}}>NewsApp </h1>
-        <div className="rounded mx-auto d-block">{this.state.loading && <Spinner/>}</div>
-         
-        <div className="row ">
-        {!this.state.loading && this.state.articles.map((element) => {
-          return <div className="col-md-4 my-2 " key={element.url}>
-          <NewsItems
-            title={element.title}
-            description={element.description}
-            newsUrl={element.url}
-            imgUrl={element.urlToImage}
-          />
-          
-        </div>
-
-        })}
-
-         {/* next previous buttons */}
-        </div>
-            <div className="container d-flex justify-content-between">
-            <button disabled={this.state.page<=1} type="button" onClick={this.handlePrevButton} className="btn btn-dark">&larr; Previous</button>
-            <button disabled= {this.state.page + 1 > Math.ceil(this.state.totalResults/this.props.pageSize)} type="button" onClick={this.handleNextButton} className="btn btn-dark">Next &rarr;</button>
-          </div> 
-          
+      <div className="row ">
+        {articles.map((element) => (
+          <div className="col-md-4 my-2 " key={element.url}>
+            <NewsItems
+              title={element.title}
+              description={element.description}
+              newsUrl={element.url}
+              imgUrl={element.urlToImage}
+              date={element.publishedAt}
+              author={element.author}
+            />
+          </div>
+        ))}
       </div>
-    );
-  }
-}
+
+      <div className="d-flex justify-content-between">
+        <button
+          type="button"
+          disabled={page <= 1}
+          onClick={handlePrevButton}
+          className="btn btn-dark"
+        >
+          &larr; Previous
+        </button>
+        <button
+          type="button"
+          disabled={page + 1 > Math.ceil(totalResults / pageSize)}
+          onClick={handleNextButton}
+          className="btn btn-dark"
+        >
+          Next &rarr;
+        </button>
+      </div>
+    </div>
+  );
+};
+
+News.propTypes = {
+  country: PropTypes.string,
+  pageSize: PropTypes.number,
+  category: PropTypes.string,
+};
 
 export default News;
